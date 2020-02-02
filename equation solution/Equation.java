@@ -7,7 +7,7 @@ public class Equation {
     private static final double eps = 1e-12;
 
     private static LinkedList<Double> coefficients;
-    private static LinkedList<Double> roots;
+    private static LinkedList<Complex> roots;
 
     public static void setCoefficients(String []buffer)    {
         if (buffer.length < 1)    {
@@ -87,14 +87,39 @@ public class Equation {
         double a = coefficients.get(0);
         double b = coefficients.get(1);
 
-        roots.add(-b / a);
+        roots.add(new Complex(-b / a, 0));
     }
 
     private static void solveQuadratic() {
+        if (isNull(coefficients))   {
+            return;
+        }
 
+        double a = coefficients.get(0);
+        double b = coefficients.get(1);
+        double c = coefficients.get(2);
+
+        double D = b * b - 4 * a * c;
+
+        if (D > eps) {
+            roots.add(new Complex((-b + Math.sqrt(D)) / (2 * a), 0.0));
+            roots.add(new Complex((-b - Math.sqrt(D)) / (2 * a), 0.0));
+        } else {
+            roots.add(new Complex(-b / (2 * a), Math.sqrt(-D) / (2 * a)));
+            roots.add(new Complex(-b / (2 * a), - Math.sqrt(-D) / (2 * a)));
+        }
     }
 
     private static void solveCubic() {
+        if (isNull(coefficients)) {
+            return;
+        }
+
+        double a = coefficients.get(0);
+        double b = coefficients.get(1);
+        double c = coefficients.get(2);
+        double d = coefficients.get(3);
+
 
     }
 
@@ -105,8 +130,10 @@ public class Equation {
         }
 
         int index = 1;
-        for (Double x: roots) {
-            System.out.println("x" + index++ + " = " + x);
+        for (Complex x: roots) {
+            System.out.print("x" + index++ + " = ");
+            x.print();
+            System.out.println();
         }
 
     }
