@@ -1,4 +1,3 @@
-
 import java.util.LinkedList;
 import java.lang.Math;
 
@@ -116,10 +115,24 @@ public class Equation {
         }
 
         double a = coefficients.get(0);
-        double b = coefficients.get(1);
-        double c = coefficients.get(2);
+        double b = coefficients.get(1) / 3;
+        double c = coefficients.get(2) / 3;
         double d = coefficients.get(3);
 
+        double p = (a * c - b * b) / (a * a);
+        double q = (2 * b * b * b - 3 * a * b * c + a * a * d) / (2 * a * a * a);
+
+        Complex Q = new Complex(p * p * p  + q * q, 0.0);
+
+        LinkedList<Complex> A = Complex.cbrt(Complex.sum(Complex.sqrt(Q).get(0),
+                new Complex(-q, 0)));
+
+        LinkedList<Complex> y = new LinkedList<>();
+        for (Complex z: A)
+            y.add(Complex.diff(z, Complex.div(new Complex(p, 0.0), z)));
+
+        for (Complex z: y)
+            roots.add(Complex.diff(z, new Complex(b / a, 0)));
 
     }
 
@@ -137,8 +150,6 @@ public class Equation {
         }
 
     }
-
-
 
     public static void main(String[] args) {
         setCoefficients(args);
