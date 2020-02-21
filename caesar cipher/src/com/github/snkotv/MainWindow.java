@@ -2,10 +2,19 @@ package com.github.snkotv;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 public class MainWindow extends Window {
 
     private static MainWindow instance = null;
+
+    private MenuBar menuBar = new MenuBar();
+    private ButtonPanel buttonPanel = new ButtonPanel();
+    private OptionsPanel optionsPanel = new OptionsPanel();
+    private String defaultPath = "";
 
     public MainWindow() {
         super("Caesar Cipher");
@@ -33,8 +42,8 @@ public class MainWindow extends Window {
     }
 
     private class ButtonPanel extends JPanel {
-        private static final int BUTTON_WIDTH = 10;
-        private static final int BUTTON_HEIGHT = 10;
+        private static final int BUTTON_WIDTH = 128;
+        private static final int BUTTON_HEIGHT = 32;
 
         private JButton openInputFile;
         private JButton openOutputFile;
@@ -48,26 +57,98 @@ public class MainWindow extends Window {
             setPreferredSize(new Dimension(MainWindow.this.getWidth() / 2,MainWindow.this.getHeight()));
             setLayout(new GridLayout(5, 1, 0, MainWindow.this.getHeight() / 16));
 
-            openInputFile = new JButton("Open input file");
-            openInputFile.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            openInputFileButton();
             add(openInputFile);
 
-            openOutputFile = new JButton("Open output file");
-            openOutputFile.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            openOutputFileButton();
             add(openOutputFile);
 
-            encode = new JButton("Encode");
-            encode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            encodeButton();
             add(encode);
 
-            decode = new JButton("Decode");
-            decode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            decodeButton();
             add(decode);
 
+            exitButton();
+            add(exit);
+        }
+
+        private void openInputFileButton() {
+            openInputFile = new JButton("Open input file");
+            openInputFile.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+            openInputFile.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+
+                }
+            });
+        }
+
+        private void openOutputFileButton() {
+            openOutputFile = new JButton("Open output file");
+            openOutputFile.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+            openOutputFile.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+
+                }
+            });
+        }
+
+        private void encodeButton() {
+            encode = new JButton("Encode");
+            encode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+            encode.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    try {
+                        Encoder.setShift(Integer.parseInt(optionsPanel.shift.getText()));
+                        Encoder.setInput(new File(defaultPath + optionsPanel.inputFilePath.getText()));
+                        Encoder.setOutput(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                        Encoder.encode();
+                        JOptionPane.showMessageDialog(null, "Encoding is finished!");
+
+                    }   catch (NumberFormatException e) {
+                        String msg = "Invalid value of shift field: \"" + optionsPanel.shift.getText() + "\".\n";
+                        msg += "Integer value expected.";
+                        JOptionPane.showMessageDialog(null, msg);
+
+                    }   catch (IOException e) {
+                        String msg = "Can't get access to file: \"" + optionsPanel.inputFilePath.getText() + "\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
+                }
+            });
+        }
+
+        private void decodeButton() {
+            decode = new JButton("Decode");
+            decode.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+
+            decode.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+
+                }
+            });
+        }
+
+        private void exitButton() {
             exit = new JButton("Exit");
             exit.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-            add(exit);
 
+            exit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    int option = JOptionPane.showConfirmDialog(MainWindow.this,"Are you sure?", "Exiting", JOptionPane.YES_NO_OPTION);
+                    if (option == JOptionPane.YES_OPTION) {
+                        System.exit(0);
+                    }
+                }
+            });
         }
     }
 
@@ -138,11 +219,6 @@ public class MainWindow extends Window {
         }
     }
 
-    private MenuBar menuBar = new MenuBar();
-    private ButtonPanel buttonPanel = new ButtonPanel();
-    private OptionsPanel optionsPanel = new OptionsPanel();
-
-
     private void init() {
         setResizable(false);
 
@@ -150,8 +226,6 @@ public class MainWindow extends Window {
         getContentPane().add(buttonPanel, BorderLayout.EAST);
         getContentPane().add(optionsPanel, BorderLayout.WEST);
 
-       pack();
+        pack();
     }
-
-
 }
