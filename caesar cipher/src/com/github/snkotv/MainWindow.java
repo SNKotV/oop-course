@@ -42,8 +42,8 @@ public class MainWindow extends Window {
     }
 
     private class ButtonPanel extends JPanel {
-        private static final int BUTTON_WIDTH = 128;
-        private static final int BUTTON_HEIGHT = 32;
+        private static final int BUTTON_WIDTH = 148;
+        private static final int BUTTON_HEIGHT = 56;
 
         private JButton openInputFile;
         private JButton openOutputFile;
@@ -52,10 +52,11 @@ public class MainWindow extends Window {
         private JButton exit;
 
         public ButtonPanel() {
-            setBackground(Color.RED); // delete
-
             setPreferredSize(new Dimension(MainWindow.this.getWidth() / 2,MainWindow.this.getHeight()));
-            setLayout(new GridLayout(5, 1, 0, MainWindow.this.getHeight() / 16));
+            setBorder(BorderFactory.createLoweredBevelBorder());
+            int hgap = (MainWindow.this.getWidth() / 2 - BUTTON_WIDTH) / 2;
+            int vgap = (MainWindow.this.getHeight() - 5 * BUTTON_HEIGHT) / 6;
+            setLayout(new FlowLayout(0, hgap, vgap));
 
             openInputFileButton();
             add(openInputFile);
@@ -154,9 +155,9 @@ public class MainWindow extends Window {
 
     private class OptionsPanel extends JPanel {
         private static final int LABEL_WIDTH = 200;
-        private static final int LABEL_HEIGHT = 24;
+        private static final int LABEL_HEIGHT = 32;
         private static final int TEXT_FIELD_WIDTH = 200;
-        private static final int TEXT_FIELD_HEIGHT = 24;
+        private static final int TEXT_FIELD_HEIGHT = 32;
 
         private JLabel shiftLbl;
         private JTextField shift;
@@ -167,56 +168,75 @@ public class MainWindow extends Window {
         private JLabel keywordLbl;
         private JTextField keyword;
 
+        private Font textFont = new Font("Times New Roman", Font.ROMAN_BASELINE, MainWindow.this.getHeight() / 14);
+
         public OptionsPanel() {
-            setBackground(Color.GRAY); // delete
-
             setPreferredSize(new Dimension(MainWindow.this.getWidth() / 2,MainWindow.this.getHeight()));
+            setBorder(BorderFactory.createLoweredBevelBorder());
+            int hgap = (MainWindow.this.getWidth() / 2 - TEXT_FIELD_WIDTH) / 2;
+            int vgap = (MainWindow.this.getHeight() - 8 * TEXT_FIELD_HEIGHT) / 9;
+            setLayout(new FlowLayout(0, hgap, vgap));
 
 
-            Font textFont = new Font("Times New Roman", Font.ROMAN_BASELINE, MainWindow.this.getHeight() / 16);
+            shiftField();
+            add(shiftLbl);
+            add(shift);
 
+            inputFilePathField();
+            add(inputFilePathLbl);
+            add(inputFilePath);
+
+            outputFilePathField();
+            add(outputFilePathLbl);
+            add(outputFilePath);
+
+            keywordField();
+            add(keywordLbl);
+            add(keyword);
+        }
+
+        private void shiftField() {
             shiftLbl = new JLabel("Shift:");
             shiftLbl.setFont(textFont);
             shiftLbl.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-            add(shiftLbl);
+
 
             shift = new JTextField();
             shift.setFont(textFont);
             shift.setPreferredSize(new Dimension(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-            add(shift);
+        }
 
-
+        private void inputFilePathField() {
             inputFilePathLbl = new JLabel("Input file path:");
             inputFilePathLbl.setFont(textFont);
             inputFilePathLbl.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-            add(inputFilePathLbl);
+
 
             inputFilePath = new JTextField();
             inputFilePath.setFont(textFont);
             inputFilePath.setPreferredSize(new Dimension(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-            add(inputFilePath);
+        }
 
+        private void outputFilePathField() {
             outputFilePathLbl = new JLabel("Output file path:");
             outputFilePathLbl.setFont(textFont);
             outputFilePathLbl.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-            add(outputFilePathLbl);
 
             outputFilePath = new JTextField();
             outputFilePath.setFont(textFont);
             outputFilePath.setPreferredSize(new Dimension(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-            add(outputFilePath);
+        }
 
+        private void keywordField() {
             keywordLbl = new JLabel("Keyword:");
             keywordLbl.setFont(textFont);
             keywordLbl.setPreferredSize(new Dimension(LABEL_WIDTH, LABEL_HEIGHT));
-            add(keywordLbl);
 
             keyword = new JTextField();
             keyword.setFont(textFont);
             keyword.setPreferredSize(new Dimension(TEXT_FIELD_WIDTH, TEXT_FIELD_HEIGHT));
-            add(keyword);
-
         }
+
     }
 
     private void init() {
