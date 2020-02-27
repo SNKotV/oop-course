@@ -11,10 +11,8 @@ public class MainWindow extends Window {
 
     private static MainWindow instance = null;
 
-    private MenuBar menuBar = new MenuBar();
     private ButtonPanel buttonPanel = new ButtonPanel();
     private OptionsPanel optionsPanel = new OptionsPanel();
-    private String defaultPath = "";
     private TextEditor editor = new TextEditor();
 
     public MainWindow() {
@@ -28,19 +26,6 @@ public class MainWindow extends Window {
             instance = new MainWindow();
         }
         return instance;
-    }
-
-    private class MenuBar extends JMenuBar {
-        private JMenu mainMenu;
-        private JMenu settingsMenu;
-
-        public MenuBar() {
-            mainMenu = new JMenu("Main");
-            add(mainMenu);
-
-            settingsMenu = new JMenu("Settings");
-            add(settingsMenu);
-        }
     }
 
     private class ButtonPanel extends JPanel {
@@ -83,7 +68,7 @@ public class MainWindow extends Window {
             openInputFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    editor.setFile(new File(defaultPath + optionsPanel.inputFilePath.getText()));
+                    editor.setFile(new File(optionsPanel.inputFilePath.getText()));
                     try {
                         editor.readFile();
                         editor.setVisible(true);
@@ -102,7 +87,7 @@ public class MainWindow extends Window {
             openOutputFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    editor.setFile(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                    editor.setFile(new File(optionsPanel.outputFilePath.getText()));
                     try {
                         editor.readFile();
                         editor.setVisible(true);
@@ -123,8 +108,8 @@ public class MainWindow extends Window {
                 public void actionPerformed(ActionEvent event) {
                     try {
                         Encoder.setShift(Integer.parseInt(optionsPanel.shift.getText()));
-                        Encoder.setInput(new File(defaultPath + optionsPanel.inputFilePath.getText()));
-                        Encoder.setOutput(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                        Encoder.setInput(new File(optionsPanel.inputFilePath.getText()));
+                        Encoder.setOutput(new File(optionsPanel.outputFilePath.getText()));
                         Encoder.encode();
                         JOptionPane.showMessageDialog(null, "Encoding is finished!");
 
@@ -153,9 +138,9 @@ public class MainWindow extends Window {
                             throw new Exception();
                         }
 
-                        Decoder.setKeyword(defaultPath + optionsPanel.keyword.getText());
-                        Decoder.setInput(new File(defaultPath + optionsPanel.inputFilePath.getText()));
-                        Decoder.setOutput(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                        Decoder.setKeyword(optionsPanel.keyword.getText());
+                        Decoder.setInput(new File(optionsPanel.inputFilePath.getText()));
+                        Decoder.setOutput(new File(optionsPanel.outputFilePath.getText()));
                         Decoder.decode();
                         JOptionPane.showMessageDialog(null, "Decoding is finished!");
 
@@ -275,7 +260,6 @@ public class MainWindow extends Window {
     private void init() {
         setResizable(false);
 
-        getContentPane().add(menuBar, BorderLayout.NORTH);
         getContentPane().add(buttonPanel, BorderLayout.EAST);
         getContentPane().add(optionsPanel, BorderLayout.WEST);
 
