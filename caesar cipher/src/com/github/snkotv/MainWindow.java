@@ -83,7 +83,14 @@ public class MainWindow extends Window {
             openInputFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-
+                    editor.setFile(new File(defaultPath + optionsPanel.inputFilePath.getText()));
+                    try {
+                        editor.readFile();
+                        editor.setVisible(true);
+                    } catch (IOException e) {
+                        String msg = "Can't get access to file: \"" + optionsPanel.inputFilePath.getText() + "\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
                 }
             });
         }
@@ -95,7 +102,14 @@ public class MainWindow extends Window {
             openOutputFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-
+                    editor.setFile(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                    try {
+                        editor.readFile();
+                        editor.setVisible(true);
+                    } catch (IOException e) {
+                        String msg = "Can't get access to file: \"" + optionsPanel.outputFilePath.getText() + "\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
                 }
             });
         }
