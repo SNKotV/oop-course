@@ -15,10 +15,12 @@ public class MainWindow extends Window {
     private ButtonPanel buttonPanel = new ButtonPanel();
     private OptionsPanel optionsPanel = new OptionsPanel();
     private String defaultPath = "";
+    private TextEditor editor = new TextEditor();
 
     public MainWindow() {
         super("Caesar Cipher");
         init();
+        setVisible(true);
     }
 
     public static MainWindow getInstance() {
@@ -132,7 +134,24 @@ public class MainWindow extends Window {
             decode.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
+                    try {
+                        if(optionsPanel.keyword.getText().equals("")) {
+                            throw new Exception();
+                        }
 
+                        Decoder.setKeyword(defaultPath + optionsPanel.keyword.getText());
+                        Decoder.setInput(new File(defaultPath + optionsPanel.inputFilePath.getText()));
+                        Decoder.setOutput(new File(defaultPath + optionsPanel.outputFilePath.getText()));
+                        Decoder.decode();
+                        JOptionPane.showMessageDialog(null, "Decoding is finished!");
+
+                    }   catch (IOException e) {
+                        String msg = "Can't get access to file: \"" + optionsPanel.inputFilePath.getText() + "\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }   catch (Exception e) {
+                        String msg = "Keyword field is empty.\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
                 }
             });
         }
