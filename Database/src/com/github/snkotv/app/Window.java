@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +15,9 @@ import java.util.Map;
 public class Window extends JFrame {
 
     private Map<Integer, Student> groups = new HashMap<>();
+    private JPanel dialogPanel;
+    private JTable table;
+
     private static class StudentManagePanel extends JPanel{
         private int width;
         private int height;
@@ -31,9 +36,9 @@ public class Window extends JFrame {
         private JButton deleteButton;
 
         private StudentManagePanel(Window master) {
-            width = master.getWidth() * 95 / 100;
+            width = master.getWidth() * 95 / 200;
             height = master.getHeight() / 2;
-            setPreferredSize(new Dimension(width, height));
+            setPreferredSize(new Dimension(width, height + 30));
 
             setLayout(new FlowLayout(0,20,10));
 
@@ -58,6 +63,12 @@ public class Window extends JFrame {
             createBirthDateField();
             add(birthDateLbl);
             add(birthDateSpinner);
+
+            createAddButton();
+            add(addButton);
+
+            createDeleteButton();
+            add(deleteButton);
 
             Border border = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
             TitledBorder titledBorder = BorderFactory.createTitledBorder(border, "Управление Студентом");
@@ -109,12 +120,23 @@ public class Window extends JFrame {
             birthDateSpinner.setPreferredSize(new Dimension(width / 3, getTextHeight()));
         }
 
+        private void createAddButton() {
+            addButton = new JButton("Добавить");
+            addButton.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+        }
+
+        private void createDeleteButton() {
+            deleteButton = new JButton("Исключить");
+            deleteButton.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+        }
+
         private int getTextHeight() {
             return height / 12;
         }
     }
 
     private static class GroupManagePanel extends JPanel {
+        private Window master;
         private int width;
         private int height;
         private JLabel groupNumberLbl;
@@ -124,15 +146,25 @@ public class Window extends JFrame {
         private JButton toTable;
 
         private GroupManagePanel(Window master) {
-            width = master.getWidth() * 95 / 100;
+            this.master = master;
+
+            width = master.getWidth() * 95 / 200;
             height = master.getHeight() / 8;
-            setPreferredSize(new Dimension(width, height));
+            setPreferredSize(new Dimension(width, height + 20));
+
+            setLayout(new FlowLayout(0,40,10));
 
             textFont = new Font("Times New Roman", Font.ROMAN_BASELINE, height / 4);
 
             createGroupNumberField();
             add(groupNumberLbl);
             add(groupNumberCb);
+
+            createToFileButton();
+            add(toFile);
+
+            createToTableButton();
+            add(toTable);
 
             Border border = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
             TitledBorder titledBorder = BorderFactory.createTitledBorder(border, "Управление Группой");
@@ -146,6 +178,23 @@ public class Window extends JFrame {
             groupNumberCb = new JComboBox();
             groupNumberCb.setFont(textFont);
             groupNumberCb.setPreferredSize(new Dimension(getTextHeight() * 3, getTextHeight()));
+        }
+
+        private void createToFileButton() {
+            toFile = new JButton("В файл");
+            toFile.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+        }
+
+        private void createToTableButton() {
+            toTable = new JButton("В таблицу");
+            toTable.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+
+            toTable.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    master.setSize(master.getWidth() * 2, master.getHeight());
+                }
+            });
         }
 
         private int getTextHeight() {
@@ -166,13 +215,46 @@ public class Window extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        getContentPane().add(new StudentManagePanel(this), BorderLayout.NORTH);
-        getContentPane().add(new GroupManagePanel(this), BorderLayout.SOUTH);
+        dialogPanel = new JPanel();
+        dialogPanel.setLayout(new BorderLayout());
+        dialogPanel.add(new StudentManagePanel(this), BorderLayout.NORTH);
+        dialogPanel.add(new GroupManagePanel(this), BorderLayout.SOUTH);
+
+        createTable();
+
+        getContentPane().add(dialogPanel, BorderLayout.WEST);
+
+
+        JScrollPane sp = new JScrollPane(table);
+        table.setFillsViewportHeight(true);
+        sp.setPreferredSize(new Dimension(getWidth() * 95 / 200, dialogPanel.getHeight()));
+
+        getContentPane().add(sp, BorderLayout.EAST);
 
         pack();
     }
 
     private void loadGroupsData() {
+
+    }
+
+    private void createTable() {
+        String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
+
+        int width = getWidth() * 95 / 200;
+        int height = dialogPanel.getHeight();
+
+        DefaultTableModel model = new DefaultTableModel(header, 0);
+
+        table = new JTable(model);
+        table.setPreferredSize(new Dimension(width, height));
+
+        
+        for (int i = 0; i < header.length; i++) {
+            TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
+            col.setHeaderValue(header[i]);
+            table.getTableHeader().resizeAndRepaint();
+        }
 
     }
 
