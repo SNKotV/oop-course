@@ -6,16 +6,21 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.text.DateFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.util.*;
 
 public class Window extends JFrame {
 
-    private Map<Integer, Student> groups = new HashMap<>();
+    private ArrayList<Integer> groupNumbers;
+    private Map<Integer, LinkedList<Student>> groups = new HashMap<>();
     private JPanel dialogPanel;
+    private Table table;
 
     private static class StudentManagePanel extends JPanel{
         private Window master;
@@ -31,6 +36,7 @@ public class Window extends JFrame {
         private JLabel groupNumberLbl;
         private JComboBox groupNumberCb;
         private JLabel birthDateLbl;
+        private SpinnerDateModel spinnerModel;
         private JSpinner birthDateSpinner;
         private JButton addButton;
         private JButton deleteButton;
@@ -110,15 +116,29 @@ public class Window extends JFrame {
             groupNumberCb = new JComboBox();
             groupNumberCb.setFont(textFont);
             groupNumberCb.setPreferredSize(new Dimension(getTextHeight() * 3, getTextHeight()));
+            groupNumberCb.addItem("Все");
+            for (Integer number: master.groupNumbers) {
+                groupNumberCb.addItem(number);
+            }
         }
 
         private void createBirthDateField() {
             birthDateLbl = new JLabel("Дата рождения: ");
             birthDateLbl.setFont(textFont);
 
-            birthDateSpinner = new JSpinner();
+            spinnerModel = new SpinnerDateModel();
+            birthDateSpinner = new JSpinner(spinnerModel);
             birthDateSpinner.setFont(textFont);
             birthDateSpinner.setPreferredSize(new Dimension(width / 3, getTextHeight()));
+
+            JSpinner.DateEditor editor = new JSpinner.DateEditor(birthDateSpinner, "dd.MM.yy");
+            Calendar calendar = new GregorianCalendar(2000, Calendar.JANUARY, 1);
+            birthDateSpinner.setValue(calendar.getTime());
+            birthDateSpinner.setEditor(editor);
+
+            DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+            formatter.setAllowsInvalid(false);
+            formatter.setOverwriteMode(true);
         }
 
         private void createAddButton() {
@@ -179,11 +199,22 @@ public class Window extends JFrame {
             groupNumberCb = new JComboBox();
             groupNumberCb.setFont(textFont);
             groupNumberCb.setPreferredSize(new Dimension(getTextHeight() * 3, getTextHeight()));
+            groupNumberCb.addItem("Все");
+            for (Integer number: master.groupNumbers) {
+                groupNumberCb.addItem(number);
+            }
         }
 
         private void createToFileButton() {
             toFile = new JButton("В файл");
             toFile.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+
+            toFile.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
         }
 
         private void createToTableButton() {
@@ -193,7 +224,17 @@ public class Window extends JFrame {
             toTable.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    master.setSize(master.getWidth() * 2, master.getHeight());
+                    String cbValue = groupNumberCb.getSelectedItem().toString();
+                    if (cbValue.equals("Все")) {
+
+                    } else {
+                        for (Student student: master.groups.get(Integer.parseInt(cbValue))) {
+                            Object[] data = new Object[] {student.getId(),
+                            student.getName(), student.getSurname(), student.getPatronymic(),
+                            cbValue, student.getBirthDate()};
+                            master.table.addRow(data);
+                        }
+                    }
                 }
             });
         }
@@ -226,22 +267,45 @@ public class Window extends JFrame {
             model = new DefaultTableModel(header, 0);
 
             table = new JTable(model);
+            table.setEnabled(false);
 
             for (int i = 0; i < header.length; i++) {
                 TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
                 col.setHeaderValue(header[i]);
-                table.getTableHeader().resizeAndRepaint();
             }
+            table.getTableHeader().setReorderingAllowed(false);
+            table.setAutoCreateRowSorter(true);
+
 
             scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new Dimension(width - 5, height - 5));
+
+//            Object[] data = new Object[] {"0", "A", "B","C","D","E"};
+//            model = (DefaultTableModel) table.getModel();
+//            for (int i = 0; i < 100; i++) {
+//                data[0] = (char)(i + '0');
+//                model.addRow(data);
+//            }
+        }
+
+        public void addRow(Object[] data) {
+            model = (DefaultTableModel) table.getModel();
+            model.addRow(data);
         }
 
     }
 
     public Window(String title, int width, int height) {
         super(title);
-        loadGroupsData();
+        try {
+            loadGroupsData();
+        }
+        catch (IOException e) {
+            String msg = "Невозможно получить доступ к файлу groupNumbers.init.\n" +
+                    "Возможно данный файл был поврежден. Работа программы будет остановлена";
+            JOptionPane.showMessageDialog(null, msg);
+            System.exit(-1);
+        }
         init(width,  height);
         setVisible(true);
     }
@@ -257,42 +321,68 @@ public class Window extends JFrame {
         dialogPanel.add(new StudentManagePanel(this), BorderLayout.NORTH);
         dialogPanel.add(new GroupManagePanel(this), BorderLayout.SOUTH);
 
+        table = new Table(this);
+
         getContentPane().add(dialogPanel, BorderLayout.WEST);
-        getContentPane().add(new Table(this), BorderLayout.EAST);
+        getContentPane().add(table, BorderLayout.EAST);
 
         pack();
     }
 
-    private void loadGroupsData() {
+    private void loadGroupsData() throws IOException {
+        groupNumbers = new ArrayList<>();
 
+        File initFile = new File("files/groupNumbers.init");
+        BufferedReader br = new BufferedReader(new FileReader(initFile));
+        String line = "";
+
+        while ((line = br.readLine()) != null) {
+            try {
+                groupNumbers.add(Integer.parseInt(line));
+            }
+            catch (NumberFormatException e) {
+                String msg = "Невозможно корректно извлечь информацию из файла groupNumbers.init.\n" +
+                        "Возможно данный файл был поврежден. Работа программы будет остановлена";
+                JOptionPane.showMessageDialog(null, msg);
+                System.exit(-1);
+            }
+        }
+
+        for (Integer number: groupNumbers) {
+            groups.put(number, new LinkedList<>());
+        }
+
+        BufferedWriter bw;
+        String fileName = "";
+        for (Integer number: groupNumbers) {
+            fileName = "" + number + ".group";
+            try {
+                br = new BufferedReader(new FileReader("files/" + fileName));
+
+                while ((line = br.readLine()) != null) {
+                    if (line.equals(""))
+                        continue;
+                    try {
+                        Student student = Student.parseStudent(line);
+                        groups.get(number).add(student);
+                    } catch (Exception e) {
+                        String msg = "Данные файла " + fileName +"были повреждены.\n Файл будет полностью очищен.";
+                        JOptionPane.showMessageDialog(null, msg,"Внимание" ,JOptionPane.WARNING_MESSAGE);
+                        groups.get(number).clear();
+                        bw = new BufferedWriter(new FileWriter("files/" + fileName));
+                        bw.write("");
+                        bw.close();
+                        break;
+                    }
+                }
+
+            } catch (Exception e) {
+                bw = new BufferedWriter(new FileWriter("files/" + fileName));
+                bw.write("");
+                bw.close();
+            }
+        }
+
+        br.close();
     }
-
-//    private void createTable() {
-//        String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
-//
-//        int width = getWidth() * 95 / 200;
-//        int height = dialogPanel.getHeight();
-//
-//        DefaultTableModel model = new DefaultTableModel(header, 0);
-//
-//        table = new JTable(model);
-//        table.setPreferredSize(new Dimension(width, height));
-//
-//
-//        for (int i = 0; i < header.length; i++) {
-//            TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
-//            col.setHeaderValue(header[i]);
-//            table.getTableHeader().resizeAndRepaint();
-//        }
-//
-//    }
-
-
-
-
-
-
-
-
-
 }

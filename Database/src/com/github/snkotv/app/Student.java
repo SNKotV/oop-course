@@ -1,5 +1,7 @@
 package com.github.snkotv.app;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Student {
@@ -25,10 +27,6 @@ public class Student {
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -61,6 +59,19 @@ public class Student {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public static Student parseStudent(String str) throws Exception {
+        String[] parts = str.split(":");
+
+        String name = parts[1];
+        String surname = parts[2];
+        String patronymic = parts[3];
+        Date birthDate = new SimpleDateFormat("dd.MM.yy").parse(parts[4]);
+
+        Student student = new Student(name, surname, patronymic, birthDate);
+
+        return student;
     }
 
     @Override
