@@ -224,14 +224,24 @@ public class Window extends JFrame {
             toTable.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+
+                    master.table.clear();
+
                     String cbValue = groupNumberCb.getSelectedItem().toString();
                     if (cbValue.equals("Все")) {
-
+                        for (Integer number: master.groupNumbers) {
+                            for (Student student: master.groups.get(number)) {
+                                Object[] data = new Object[] {student.getId(),
+                                        student.getName(), student.getSurname(), student.getPatronymic(),
+                                        number, student.getStringBirthDate()};
+                                master.table.addRow(data);
+                            }
+                        }
                     } else {
                         for (Student student: master.groups.get(Integer.parseInt(cbValue))) {
                             Object[] data = new Object[] {student.getId(),
-                            student.getName(), student.getSurname(), student.getPatronymic(),
-                            cbValue, student.getBirthDate()};
+                                    student.getName(), student.getSurname(), student.getPatronymic(),
+                                    cbValue, student.getStringBirthDate()};
                             master.table.addRow(data);
                         }
                     }
@@ -279,18 +289,16 @@ public class Window extends JFrame {
 
             scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new Dimension(width - 5, height - 5));
-
-//            Object[] data = new Object[] {"0", "A", "B","C","D","E"};
-//            model = (DefaultTableModel) table.getModel();
-//            for (int i = 0; i < 100; i++) {
-//                data[0] = (char)(i + '0');
-//                model.addRow(data);
-//            }
         }
 
         public void addRow(Object[] data) {
             model = (DefaultTableModel) table.getModel();
             model.addRow(data);
+        }
+
+        public void clear() {
+            model = (DefaultTableModel) table.getModel();
+            model.setRowCount(0);
         }
 
     }

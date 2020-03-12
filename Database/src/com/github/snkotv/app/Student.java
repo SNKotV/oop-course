@@ -1,5 +1,6 @@
 package com.github.snkotv.app;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,6 +58,11 @@ public class Student {
         return birthDate;
     }
 
+    public String getStringBirthDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        return sdf.format(birthDate);
+    }
+
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
@@ -67,7 +73,9 @@ public class Student {
         String name = parts[1];
         String surname = parts[2];
         String patronymic = parts[3];
-        Date birthDate = new SimpleDateFormat("dd.MM.yy").parse(parts[4]);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
+        Date birthDate = sdf.parse(parts[4]);
 
         Student student = new Student(name, surname, patronymic, birthDate);
 
