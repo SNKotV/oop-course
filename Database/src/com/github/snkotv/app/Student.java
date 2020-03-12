@@ -1,7 +1,5 @@
 package com.github.snkotv.app;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -65,6 +63,11 @@ public class Student {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public boolean equals(String name, String surname, String patronymic, Date birthDate) {
+        return this.name.equals(name) && this.surname.equals(surname)
+                && this.patronymic.equals(patronymic) && this.birthDate.equals(birthDate);
     }
 
     public static Student parseStudent(String str) throws Exception {

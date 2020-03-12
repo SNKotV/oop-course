@@ -11,8 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.lang.reflect.Array;
-import java.text.ParseException;
 import java.util.*;
 
 public class Window extends JFrame {
@@ -116,7 +114,6 @@ public class Window extends JFrame {
             groupNumberCb = new JComboBox();
             groupNumberCb.setFont(textFont);
             groupNumberCb.setPreferredSize(new Dimension(getTextHeight() * 3, getTextHeight()));
-            groupNumberCb.addItem("Все");
             for (Integer number: master.groupNumbers) {
                 groupNumberCb.addItem(number);
             }
@@ -144,11 +141,87 @@ public class Window extends JFrame {
         private void createAddButton() {
             addButton = new JButton("Добавить");
             addButton.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+
+            addButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String name = nameTextField.getText().trim();
+                    String surname = surnameTextField.getText().trim();
+                    String patronymic = patronymicTextField.getText().trim();
+                    Integer groupNumber = Integer.parseInt(groupNumberCb.getSelectedItem().toString());
+                    Date birthDate = (Date) birthDateSpinner.getValue();
+
+                    if (name.equals("")) {
+                        String msg = "Необходимо заполнить поле \"Имя\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    } else if (surname.equals("")) {
+                        String msg = "Необходимо заполнить поле \"Фамилия\"." + "\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    } else {
+                        Student student = null;
+                        boolean founded = false;
+                        for (Student stud: master.groups.get(groupNumber)) {
+                            if (stud.equals(name, surname, patronymic, birthDate)) {
+                                founded = true;
+                                student = stud;
+                                break;
+                            }
+                        }
+
+                        if (founded) {
+                            String msg = "Студент " + student + " уже находится в " + groupNumber +" группе.\n";
+                            JOptionPane.showMessageDialog(null, msg);
+                            return;
+                        }
+
+                        student = new Student(name, surname, patronymic, birthDate);
+                        master.groups.get(groupNumber).add(student);
+                        String msg = "Студент " + student + " был успешно зачислен в " + groupNumber +" группу.\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
+                }
+            });
         }
 
         private void createDeleteButton() {
             deleteButton = new JButton("Исключить");
             deleteButton.setPreferredSize(new Dimension(getTextHeight() * 5, getTextHeight() * 2));
+
+            deleteButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String name = nameTextField.getText().trim();
+                    String surname = surnameTextField.getText().trim();
+                    String patronymic = patronymicTextField.getText().trim();
+                    Integer groupNumber = Integer.parseInt(groupNumberCb.getSelectedItem().toString());
+                    Date birthDate = (Date) birthDateSpinner.getValue();
+
+                    if (name.equals("")) {
+                        String msg = "Необходимо заполнить поле \"Имя\".\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    } else if (surname.equals("")) {
+                        String msg = "Необходимо заполнить поле \"Фамилия\"." + "\n";
+                        JOptionPane.showMessageDialog(null, msg);
+                    } else {
+                        Student student = null;
+                        boolean deleted = false;
+
+                        for (Student stud: master.groups.get(groupNumber)) {
+                            if (stud.equals(name, surname, patronymic, birthDate)) {
+                                deleted = true;
+                                student = stud;
+                                master.groups.get(groupNumber).remove(stud);
+                                break;
+                            }
+                        }
+
+                        if (deleted) {
+                            String msg = "Студент " + student + " был успешно исключен из " + groupNumber +" группы.\n";
+                            JOptionPane.showMessageDialog(null, msg);
+                        }
+                    }
+                }
+            });
         }
 
         private int getTextHeight() {
@@ -212,6 +285,45 @@ public class Window extends JFrame {
             toFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+
+                    String cbValue = groupNumberCb.getSelectedItem().toString();
+
+                    if (cbValue.equals("Все")) {
+                        boolean success = true;
+
+                        for (Integer number: master.groupNumbers) {
+                            String fileName = "" + number + ".group";
+                            try {
+                                BufferedWriter bw = new BufferedWriter(new FileWriter("files/" + fileName));
+                                bw.write("");
+
+                                for (Student student: master.groups.get(number)) {
+                                    String line = student.getId() + ":" +
+                                            student.getName() + ":" +
+                                            student.getSurname() + ":" +
+                                            student.getPatronymic() + ":" +
+                                            student.getStringBirthDate() + "\n";
+                                    bw.append(line);
+                                }
+
+                                bw.close();
+
+                            } catch (IOException ex) {
+                                success = false;
+                                String msg = "Не удалось записать данные в файл" + fileName + ".\n";
+                                JOptionPane.showMessageDialog(null, msg);
+                            }
+                        }
+                        if (success) {
+                            String msg = "Запись данных в файл была проведена успешно.\n";
+                            JOptionPane.showMessageDialog(null, msg);
+                        }
+
+                    } else {
+                        for (Student student: master.groups.get(Integer.parseInt(cbValue))) {
+
+                        }
+                    }
 
                 }
             });
