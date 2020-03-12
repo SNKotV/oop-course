@@ -16,9 +16,9 @@ public class Window extends JFrame {
 
     private Map<Integer, Student> groups = new HashMap<>();
     private JPanel dialogPanel;
-    private JTable table;
 
     private static class StudentManagePanel extends JPanel{
+        private Window master;
         private int width;
         private int height;
         private Font textFont;
@@ -36,6 +36,7 @@ public class Window extends JFrame {
         private JButton deleteButton;
 
         private StudentManagePanel(Window master) {
+            this.master = master;
             width = master.getWidth() * 95 / 200;
             height = master.getHeight() / 2;
             setPreferredSize(new Dimension(width, height + 30));
@@ -202,6 +203,42 @@ public class Window extends JFrame {
         }
     }
 
+    private static class Table extends JPanel {
+        private Window master;
+        private int width;
+        private int height;
+        private String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
+        private DefaultTableModel model;
+        private JTable table;
+        private JScrollPane scrollPane;
+
+        public Table(Window master) {
+            this.master = master;
+            width = master.getWidth() * 95 / 200;
+            height = master.getHeight() * 6 / 8;
+            setPreferredSize(new Dimension(width, height));
+
+            createTable();
+            add(scrollPane);
+        }
+
+        private void createTable() {
+            model = new DefaultTableModel(header, 0);
+
+            table = new JTable(model);
+
+            for (int i = 0; i < header.length; i++) {
+                TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
+                col.setHeaderValue(header[i]);
+                table.getTableHeader().resizeAndRepaint();
+            }
+
+            scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new Dimension(width - 5, height - 5));
+        }
+
+    }
+
     public Window(String title, int width, int height) {
         super(title);
         loadGroupsData();
@@ -220,16 +257,8 @@ public class Window extends JFrame {
         dialogPanel.add(new StudentManagePanel(this), BorderLayout.NORTH);
         dialogPanel.add(new GroupManagePanel(this), BorderLayout.SOUTH);
 
-        createTable();
-
         getContentPane().add(dialogPanel, BorderLayout.WEST);
-
-
-        JScrollPane sp = new JScrollPane(table);
-        table.setFillsViewportHeight(true);
-        sp.setPreferredSize(new Dimension(getWidth() * 95 / 200, dialogPanel.getHeight()));
-
-        getContentPane().add(sp, BorderLayout.EAST);
+        getContentPane().add(new Table(this), BorderLayout.EAST);
 
         pack();
     }
@@ -238,25 +267,25 @@ public class Window extends JFrame {
 
     }
 
-    private void createTable() {
-        String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
-
-        int width = getWidth() * 95 / 200;
-        int height = dialogPanel.getHeight();
-
-        DefaultTableModel model = new DefaultTableModel(header, 0);
-
-        table = new JTable(model);
-        table.setPreferredSize(new Dimension(width, height));
-
-        
-        for (int i = 0; i < header.length; i++) {
-            TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
-            col.setHeaderValue(header[i]);
-            table.getTableHeader().resizeAndRepaint();
-        }
-
-    }
+//    private void createTable() {
+//        String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
+//
+//        int width = getWidth() * 95 / 200;
+//        int height = dialogPanel.getHeight();
+//
+//        DefaultTableModel model = new DefaultTableModel(header, 0);
+//
+//        table = new JTable(model);
+//        table.setPreferredSize(new Dimension(width, height));
+//
+//
+//        for (int i = 0; i < header.length; i++) {
+//            TableColumn col = table.getTableHeader().getColumnModel().getColumn(i);
+//            col.setHeaderValue(header[i]);
+//            table.getTableHeader().resizeAndRepaint();
+//        }
+//
+//    }
 
 
 
