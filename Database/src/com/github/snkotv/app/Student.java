@@ -1,9 +1,11 @@
 package com.github.snkotv.app;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 
-public class Student {
+public class Student implements Comparator {
     private static int availableID = 1;
 
     private int id;
@@ -88,5 +90,27 @@ public class Student {
     @Override
     public String toString() {
         return surname + " " + name + " " + patronymic;
+    }
+
+    public int compareById(Student st) {
+        if (id < st.id) {
+            return -1;
+        } else if (id == st.id) {
+            return 0;
+        }
+        return 1;
+    }
+
+    public int compareBySurname(Student st) {
+        return surname.compareTo(st.name);
+    }
+
+    public int compareByBirthDate(Student st) {
+       return birthDate.compareTo(st.birthDate);
+    }
+
+    @Override
+    public int compare(Object o, Object t1) {
+        return 0;
     }
 }

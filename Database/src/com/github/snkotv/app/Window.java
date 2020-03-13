@@ -10,6 +10,8 @@ import javax.swing.text.DateFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.*;
 
@@ -19,6 +21,8 @@ public class Window extends JFrame {
     private Map<Integer, LinkedList<Student>> groups = new HashMap<>();
     private JPanel dialogPanel;
     private Table table;
+    private StudentManagePanel studentManagePanel;
+    private GroupManagePanel groupManagePanel;
 
     private static class StudentManagePanel extends JPanel{
         private Window master;
@@ -218,6 +222,9 @@ public class Window extends JFrame {
                         if (deleted) {
                             String msg = "Студент " + student + " был успешно исключен из " + groupNumber +" группы.\n";
                             JOptionPane.showMessageDialog(null, msg);
+                        } else {
+                            String msg = "Студент " + surname + " " + name + " " + patronymic + " не найден в списке " + groupNumber +" группы.\n";
+                            JOptionPane.showMessageDialog(null, msg);
                         }
                     }
                 }
@@ -320,8 +327,32 @@ public class Window extends JFrame {
                         }
 
                     } else {
-                        for (Student student: master.groups.get(Integer.parseInt(cbValue))) {
+                        String fileName = "" + Integer.parseInt(cbValue) + ".group";
+                        boolean success = true;
+                        try {
+                            BufferedWriter bw = new BufferedWriter(new FileWriter("files/" + fileName));
+                            bw.write("");
 
+                            for (Student student: master.groups.get(Integer.parseInt(cbValue))) {
+                                String line = student.getId() + ":" +
+                                        student.getName() + ":" +
+                                        student.getSurname() + ":" +
+                                        student.getPatronymic() + ":" +
+                                        student.getStringBirthDate() + "\n";
+                                bw.append(line);
+                            }
+
+                            bw.close();
+
+                        } catch (IOException ex) {
+                            success = false;
+                            String msg = "Не удалось записать данные в файл" + fileName + ".\n";
+                            JOptionPane.showMessageDialog(null, msg);
+                        }
+
+                        if (success) {
+                            String msg = "Запись данных в файл была проведена успешно.\n";
+                            JOptionPane.showMessageDialog(null, msg);
                         }
                     }
 
@@ -370,10 +401,13 @@ public class Window extends JFrame {
         private Window master;
         private int width;
         private int height;
-        private String[] header = new String[] {"id", "Фамилия", "Имя", "Отчество", "Номер группы", "Дата рождения"};
+        private String[] header = new String[] {"id", "Имя", "Фамилия", "Отчество", "Номер группы", "Дата рождения"};
         private DefaultTableModel model;
         private JTable table;
         private JScrollPane scrollPane;
+        private boolean idReverse = false;
+        private boolean surnameReverse = false;
+        private boolean birthDateReverse = false;
 
         public Table(Window master) {
             this.master = master;
@@ -401,6 +435,88 @@ public class Window extends JFrame {
 
             scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new Dimension(width - 5, height - 5));
+
+            table.getTableHeader().addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    int col = table.columnAtPoint(e.getPoint());
+                    String cbValue = master.groupManagePanel.groupNumberCb.getSelectedItem().toString();
+
+                    Comparator<Student> idComp = Student::compareById;
+                    Comparator<Student> surnameComp = Student::compareBySurname;
+                    Comparator<Student> bdateComp = Student::compareByBirthDate;
+
+                    if (col == 0) {
+
+                        if (cbValue.equals("Все")) {
+                            for (Integer number: master.groupNumbers) {
+                                if (idReverse) {
+                                    master.groups.get(number).sort(idComp.reversed());
+                                } else {
+                                    master.groups.get(number).sort(idComp);
+                                }
+                            }
+                        } else {
+                            if (idReverse) {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(idComp.reversed());
+                            } else {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(idComp);
+                            }
+                        }
+
+                        if (idReverse)
+                            idReverse = false;
+                        else
+                            idReverse = true;
+
+                    } else if (col == 2) {
+
+                        if (cbValue.equals("Все")) {
+                            for (Integer number: master.groupNumbers) {
+                                if (surnameReverse) {
+                                    master.groups.get(number).sort(surnameComp.reversed());
+                                } else {
+                                    master.groups.get(number).sort(surnameComp);
+                                }
+                            }
+                        } else {
+                            if (surnameReverse) {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(surnameComp.reversed());
+                            } else {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(surnameComp);
+                            }
+                        }
+
+                        if (surnameReverse)
+                            surnameReverse = false;
+                        else
+                            surnameReverse = true;
+
+                    } else if (col == 5) {
+
+                        if (cbValue.equals("Все")) {
+                            for (Integer number: master.groupNumbers) {
+                                if (birthDateReverse) {
+                                    master.groups.get(number).sort(bdateComp.reversed());
+                                } else {
+                                    master.groups.get(number).sort(bdateComp);
+                                }
+                            }
+                        } else {
+                            if (birthDateReverse) {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(bdateComp.reversed());
+                            } else {
+                                master.groups.get(Integer.parseInt(cbValue)).sort(bdateComp);
+                            }
+                        }
+
+                        if (birthDateReverse)
+                            birthDateReverse = false;
+                        else
+                            birthDateReverse = true;
+                    }
+                }
+            });
         }
 
         public void addRow(Object[] data) {
@@ -436,10 +552,13 @@ public class Window extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
+        studentManagePanel = new StudentManagePanel(this);
+        groupManagePanel = new GroupManagePanel(this);
+
         dialogPanel = new JPanel();
         dialogPanel.setLayout(new BorderLayout());
-        dialogPanel.add(new StudentManagePanel(this), BorderLayout.NORTH);
-        dialogPanel.add(new GroupManagePanel(this), BorderLayout.SOUTH);
+        dialogPanel.add(studentManagePanel, BorderLayout.NORTH);
+        dialogPanel.add(groupManagePanel, BorderLayout.SOUTH);
 
         table = new Table(this);
 
