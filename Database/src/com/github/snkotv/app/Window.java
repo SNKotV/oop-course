@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Window extends JFrame {
@@ -132,7 +133,7 @@ public class Window extends JFrame {
             birthDateSpinner.setFont(textFont);
             birthDateSpinner.setPreferredSize(new Dimension(width / 3, getTextHeight()));
 
-            JSpinner.DateEditor editor = new JSpinner.DateEditor(birthDateSpinner, "dd.MM.yy");
+            JSpinner.DateEditor editor = new JSpinner.DateEditor(birthDateSpinner, "yyyy.MM.dd");
             Calendar calendar = new GregorianCalendar(2000, Calendar.JANUARY, 1);
             birthDateSpinner.setValue(calendar.getTime());
             birthDateSpinner.setEditor(editor);
