@@ -1,13 +1,12 @@
 package com.github.snkotv.communication.device.gui;
 
+import com.github.snkotv.communication.chats.Account;
 import com.github.snkotv.communication.device.Communicator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.util.LinkedList;
 
 public class ChatScreen extends Screen {
     private static final int TITLE_WIDTH = 300;
@@ -15,6 +14,12 @@ public class ChatScreen extends Screen {
     private static final int INTERACTIVE_PANEL_HEIGHT = 75;
     private static final Font CHAT_SCREEN_TITLES_FONT = new Font("Times New Roman", Font.BOLD, 18);
     private static final Font CHAT_SCREEN_MESSAGES_FONT = new Font("Times New Roman", Font.BOLD, 14);
+
+    private Account currentUser;
+
+    public void setCurrentUser(Account user) {
+        currentUser = user;
+    }
 
     private JLabel chatTitle;
     private JLabel userName;
@@ -45,6 +50,17 @@ public class ChatScreen extends Screen {
             int inputTextFieldWidth = dimension.width - 160;
             inputTextField.setPreferredSize(new Dimension(inputTextFieldWidth, MESSAGE_HEIGHT));
             inputTextField.setFont(CHAT_SCREEN_MESSAGES_FONT);
+            inputTextField.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        if (!inputTextField.getText().trim().equals("")) {
+                            String message = currentUser.getUserName() + ": " + inputTextField.getText().trim();
+                            currentUser.sendMessage(message);
+                        }
+                    }
+                }
+            });
             messageSendingPanel.add(inputTextField);
 
             // Send message button
@@ -55,7 +71,10 @@ public class ChatScreen extends Screen {
             sendButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    textArea.append(inputTextField.getText() + "\n");
+                    if (!inputTextField.getText().trim().equals("")) {
+                        String message = currentUser.getUserName() + ": " + inputTextField.getText().trim();
+                        currentUser.sendMessage(message);
+                    }
                 }
             });
             messageSendingPanel.add(sendButton);
@@ -68,7 +87,7 @@ public class ChatScreen extends Screen {
             clearHistoryButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    System.out.println("Clear");
+                    currentUser.clearMessageHistory();
                 }
             });
             messageSendingPanel.add(clearHistoryButton);
@@ -93,14 +112,18 @@ public class ChatScreen extends Screen {
             outButtonsPanel.add(exitButton);
 
             // logout button
-            logoutButton = new JButton("Log Out");
+            logoutButton = new JButton();
             logoutButton.setFont(CHAT_SCREEN_MESSAGES_FONT);
             logoutButton.setHorizontalAlignment(SwingConstants.CENTER);
             logoutButton.setPreferredSize(new Dimension(SQUARE_BUTTON_SIZE, SQUARE_BUTTON_SIZE));
+            logoutButton.setIcon(new ImageIcon("C:\\Users\\sergn\\Projects\\OOP Course" +
+                    "\\Patterns\\Behavioral Patterns\\Observer\\src" +
+                    "\\com\\github\\snkotv\\communication\\device\\gui\\shapes\\imgs\\door.jpg"));
             logoutButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    System.out.println("LogOut");
+                    currentUser.logout();
+                    master.toMainScreen();
                 }
             });
             outButtonsPanel.add(logoutButton);
@@ -116,7 +139,7 @@ public class ChatScreen extends Screen {
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
 
         // Creation of chat title label
-        chatTitle = new JLabel("Title test");
+        chatTitle = new JLabel();
         chatTitle.setHorizontalAlignment(SwingConstants.CENTER);
         chatTitle.setBorder(BorderFactory.createRaisedBevelBorder());
         chatTitle.setPreferredSize(new Dimension(TITLE_WIDTH, TITLE_HEIGHT));
@@ -124,7 +147,7 @@ public class ChatScreen extends Screen {
         add(chatTitle);
 
         // Creation of user name label
-        userName = new JLabel("Nick test");
+        userName = new JLabel();
         userName.setHorizontalAlignment(SwingConstants.CENTER);
         userName.setBorder(BorderFactory.createLoweredBevelBorder());
         userName.setPreferredSize(new Dimension(TITLE_WIDTH, TITLE_HEIGHT));
@@ -146,5 +169,26 @@ public class ChatScreen extends Screen {
         interactivePanel =
                 new InteractivePanel(new Dimension(getPreferredSize().width - 4, INTERACTIVE_PANEL_HEIGHT));
         add(interactivePanel);
+    }
+
+    public void setChatTitle(String title) {
+        chatTitle.setText(title);
+    }
+
+    public void setNickName(String nickName) {
+        userName.setText(nickName);
+    }
+
+    public void displayMessages(LinkedList<String> messages) {
+        interactivePanel.inputTextField.setText("");
+        textArea.setText("");
+        for (String message: messages) {
+            textArea.append(message + "\n");
+        }
+    }
+
+    public void displayMessage(String message) {
+        interactivePanel.inputTextField.setText("");
+        textArea.append(message + "\n");
     }
 }

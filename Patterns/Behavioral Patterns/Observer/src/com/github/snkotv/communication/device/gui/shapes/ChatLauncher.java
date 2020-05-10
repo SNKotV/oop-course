@@ -31,6 +31,10 @@ public class ChatLauncher extends JPanel {
     private JLabel notifications;
     private JButton enterButton;
 
+    public String getName() {
+        return chat.getName();
+    }
+
     public ChatLauncher(MainScreen master, Chat chat, Color titleColor) {
         this.master = master;
         this.chat = chat;
@@ -47,7 +51,7 @@ public class ChatLauncher extends JPanel {
         title.setFont(CHAT_LAUNCHER_FONT);
         add(title);
 
-        notifications = new JLabel();
+        notifications = new JLabel("0");
         notifications.setHorizontalAlignment(SwingConstants.CENTER);
         notifications.setPreferredSize(new Dimension(NOTIFICATIONS_LABEL_WIDTH, NOTIFICATIONS_LABEL_HEIGHT));
         notifications.setBorder(new LineBorder(Color.BLACK, 1));
@@ -67,4 +71,9 @@ public class ChatLauncher extends JPanel {
         });
         add(enterButton);
     }
+
+    public void updateUnreadMessagesNumber(int number) {
+        notifications.setText("" + number);
+    }
+
 }

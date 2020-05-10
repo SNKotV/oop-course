@@ -26,15 +26,19 @@ public class MainScreen extends Screen {
         add(greenChat);
         blueChat = new ChatLauncher(this, BlueChat.getInstance(), Color.BLUE);
         add(blueChat);
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println(master.getName());
-            }
-        });
     }
 
     public void enterChat(Chat chat) {
         master.enterChat(chat);
+    }
+
+    public void displayUnreadMessagesNumber(int number, Chat chat) {
+        if (redChat.getName().equals(chat.getName())) {
+            redChat.updateUnreadMessagesNumber(number);
+        } else if (greenChat.getName().equals(chat.getName())) {
+            greenChat.updateUnreadMessagesNumber(number);
+        } else if (blueChat.getName().equals(chat.getName())) {
+            blueChat.updateUnreadMessagesNumber(number);
+        }
     }
 }

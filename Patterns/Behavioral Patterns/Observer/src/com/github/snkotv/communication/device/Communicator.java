@@ -3,6 +3,7 @@ package com.github.snkotv.communication.device;
 import com.github.snkotv.communication.User;
 import com.github.snkotv.communication.chats.Chat;
 import com.github.snkotv.communication.device.gui.ChatScreen;
+import com.github.snkotv.communication.device.gui.LoginForm;
 import com.github.snkotv.communication.device.gui.MainScreen;
 import com.github.snkotv.communication.device.gui.Screen;
 
@@ -12,22 +13,40 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class Communicator extends JFrame {
+    private static int availableID = 1;
     private static final int WINDOW_WIDTH = 400;
     private static final int WINDOW_HEIGHT = 520;
     private static final int GAP_SIZE = 10;
     private static final int USERNAME_HEIGHT= 32;
 
+    private int ID;
     private JPanel contentPane;
     private MainScreen mainScreen;
+
+    public MainScreen getMainScreen() {
+        return mainScreen;
+    }
+
     private ChatScreen chatScreen;
+
+    public ChatScreen getChatScreen() {
+        return chatScreen;
+    }
+
     private Screen activeScreen;
 
+    public Screen getActiveScreen() {
+        return activeScreen;
+    }
+
     private Communicator() {
+        ID = availableID++;
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle("Communication Device Version 1.0");
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setResizable(false);
         setLocationRelativeTo(null);
+
         contentPane = new JPanel();
         contentPane.setLayout(new FlowLayout());
         contentPane.setSize(new Dimension(WINDOW_WIDTH - 2 * GAP_SIZE, WINDOW_HEIGHT - 2 * GAP_SIZE));
@@ -56,6 +75,9 @@ public class Communicator extends JFrame {
         activeScreen = mainScreen;
     }
 
+    public boolean equals(Communicator device) {
+        return ID == device.ID;
+    }
 
     public void run() {
         setVisible(true);
@@ -70,11 +92,17 @@ public class Communicator extends JFrame {
     }
 
     public void enterChat(Chat chat) {
+        if (!chat.isConnected(this)) {
+            new LoginForm(this, chat).open();
+            return;
+        }
+        chat.display(this);
+        activeScreen = chatScreen;
         chatScreen.setVisible(true);
-        System.out.println(chat.getName());
     }
 
     public void toMainScreen() {
         chatScreen.setVisible(false);
+        activeScreen = mainScreen;
     }
 }
