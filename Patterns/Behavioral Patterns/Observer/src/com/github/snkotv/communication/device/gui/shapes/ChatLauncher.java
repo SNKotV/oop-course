@@ -1,12 +1,8 @@
 package com.github.snkotv.communication.device.gui.shapes;
 
-import com.github.snkotv.communication.chats.BlueChat;
 import com.github.snkotv.communication.chats.Chat;
-import com.github.snkotv.communication.chats.GreenChat;
-import com.github.snkotv.communication.chats.RedChat;
 import com.github.snkotv.communication.device.gui.MainScreen;
-import com.github.snkotv.communication.device.gui.Screen;
-import com.sun.tools.javac.Main;
+
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

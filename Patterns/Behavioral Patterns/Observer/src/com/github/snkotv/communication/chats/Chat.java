@@ -3,7 +3,6 @@ package com.github.snkotv.communication.chats;
 import com.github.snkotv.communication.device.Communicator;
 import com.github.snkotv.communication.exceptions.InvalidPasswordException;
 import com.github.snkotv.communication.exceptions.InvalidUserNameException;
-import com.sun.jdi.connect.Connector;
 
 import java.util.LinkedList;
 
@@ -45,18 +44,24 @@ public abstract class Chat {
                 throw  new InvalidUserNameException("This username isn't free");
             }
         }
-        registeredUsers.add(user);
         user.setChat(this);
+        registeredUsers.add(user);
         String message = user.getUserName() + " joins to conversation";
         sendNotification(message);
     }
 
     public void removeUser(Account user) throws InvalidPasswordException, InvalidUserNameException {
+        for (Account activeUser: activeUsers) {
+            if (activeUser.equals(user)) {
+                throw  new InvalidUserNameException("Logged in from another device");
+            }
+        }
+
         for (Account registeredUser: registeredUsers) {
             if (registeredUser.equals(user)) {
                 if (registeredUser.getPassword().equals(user.getPassword())) {
-                    registeredUsers.remove(user);
-                    activeUsers.remove(user);
+                    registeredUsers.remove(registeredUser);
+                    activeUsers.remove(registeredUser);
                     String message = user.getUserName() + " leaves this conversation";
                     sendNotification(message);
                     return;
@@ -69,15 +74,21 @@ public abstract class Chat {
     }
 
     public void logIn(Account user) throws InvalidUserNameException, InvalidPasswordException {
+        for (Account activeUser: activeUsers) {
+            if (activeUser.equals(user)) {
+                throw  new InvalidUserNameException("Logged in from another device");
+            }
+        }
+
         for (Account registeredUser: registeredUsers) {
             if (registeredUser.equals(user)) {
                 if (registeredUser.getPassword().equals(user.getPassword())) {
                     activeUsers.add(registeredUser);
+                    registeredUser.setUsedDevice(user.getUsedDevice());
                     registeredUser.getUsedDevice().getChatScreen().setChatTitle(name);
                     registeredUser.getUsedDevice().getChatScreen().setNickName(registeredUser.getUserName());
-                    user.getUsedDevice().getChatScreen().setCurrentUser(user);
-                    user.setChat(this);
-                    user.getUsedDevice().enterChat(this);
+                    registeredUser.getUsedDevice().getChatScreen().setCurrentUser(registeredUser);
+                    registeredUser.getUsedDevice().enterChat(this);
 
                     String message = user.getUserName() + " log in to chat";
                     sendNotification(message);
@@ -100,7 +111,6 @@ public abstract class Chat {
                 return;
             }
         }
-
     }
 
     public void sendNotification(String message) {

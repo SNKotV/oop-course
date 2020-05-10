@@ -7,10 +7,8 @@ import com.github.snkotv.communication.exceptions.InvalidPasswordException;
 import com.github.snkotv.communication.exceptions.InvalidUserNameException;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.basic.BasicBorders;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +32,7 @@ public class LoginForm extends JFrame {
     private JLabel userNameErrorMessage;
 
     private JLabel passwordLabel;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private JLabel passwordErrorMessage;
 
     private JPanel inputFieldsPanel;
@@ -88,7 +86,7 @@ public class LoginForm extends JFrame {
         passwordLabel.setPreferredSize(new Dimension(WINDOW_WIDTH / 2 - 20, TEXT_HEIGHT));
         passwordPanel.add(passwordLabel);
 
-        passwordField = new JTextField();
+        passwordField = new JPasswordField();
         passwordField.setHorizontalAlignment(SwingConstants.CENTER);
         passwordField.setFont(LOGIN_FORM_FONT);
         passwordField.setPreferredSize(new Dimension(WINDOW_WIDTH / 2 - 20, TEXT_HEIGHT));

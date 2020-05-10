@@ -158,6 +158,7 @@ public class ChatScreen extends Screen {
         textArea = new JTextArea();
         textArea.setFont(CHAT_SCREEN_MESSAGES_FONT);
         textArea.setEditable(false);
+        textArea.setWrapStyleWord(true);
         JScrollPane scrollableTextArea = new JScrollPane(textArea);
         Dimension scrollAreaSize =
                 new Dimension(getPreferredSize().width - 10,

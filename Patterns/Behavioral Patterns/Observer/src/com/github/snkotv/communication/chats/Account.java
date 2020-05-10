@@ -38,6 +38,8 @@ public class Account {
         return usedDevice;
     }
 
+    public void setUsedDevice(Communicator device) { usedDevice = device; }
+
     private int unreadMessages;
 
     public int getUnreadMessages() {

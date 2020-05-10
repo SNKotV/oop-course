@@ -7,10 +7,7 @@ import com.github.snkotv.communication.chats.RedChat;
 import com.github.snkotv.communication.device.Communicator;
 import com.github.snkotv.communication.device.gui.shapes.ChatLauncher;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class MainScreen extends Screen {
     private ChatLauncher redChat;

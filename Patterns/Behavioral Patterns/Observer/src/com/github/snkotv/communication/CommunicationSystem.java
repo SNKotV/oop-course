@@ -7,9 +7,9 @@ public class CommunicationSystem {
     private static LinkedList<User> users = new LinkedList<>();
 
     public static void addUsers() {
-        users.add(new User("TestUser", "Tester"));
-        users.add(new User("TestUser2", "Tester"));
-//        users.add(new User("TestUser3", "Tester"));
+        users.add(new User("Ivan", "Petrov"));
+        users.add(new User("Petr", "Sidorov"));
+        users.add(new User("Sidor", "Ivanov"));
 
         for (User user: users) {
             user.switchOnCommunicationDevice();
